@@ -4,45 +4,34 @@ import matplotlib.pyplot as plt
 import requests
 
 st.set_page_config(page_title="Double Analyzer", layout="centered")
+st.title("🎲 Double Analyzer - Dados Reais (via API pública)")
+st.markdown("Análise em tempo real da roleta Double da Blaze via API de terceiros.")
 
-st.title("🎲 Double Analyzer - Dados Reais da Blaze")
-st.markdown("Análise em tempo real dos últimos resultados da roleta Double da Blaze.")
-
-# Função para obter os resultados reais
-def obter_resultados_reais():
-    url = "https://blaze.com/api/roulette_games/recent"
-    headers = {"User-Agent": "Mozilla/5.0"}
+# Nova função para acessar API alternativa
+def obter_resultados_alternativo():
+    url = "https://blaze-api-roulettes.vercel.app/api/double"
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url)
         response.raise_for_status()
-        dados = response.json()
-        resultados = []
-
-        for jogo in dados:
-            cor = jogo['color']  # 0 = vermelho, 1 = preto, 2 = branco
-            if cor == 0:
-                resultados.append("vermelho")
-            elif cor == 1:
-                resultados.append("preto")
-            elif cor == 2:
-                resultados.append("branco")
-
-        return list(reversed(resultados))  # ordem cronológica
+        data = response.json()
+        resultados = [jogada['color'] for jogada in data['records']]
+        return resultados[:50]  # pegar os últimos 50
     except Exception as e:
         return ["erro"]
 
 # Cores possíveis
 num_cores = {'preto': 0, 'vermelho': 1, 'branco': 2}
 
-# Obter dados da API
-historico = obter_resultados_reais()
+# Obter dados reais
+historico = obter_resultados_alternativo()
 
 if "erro" in historico:
-    st.error("❌ Erro ao acessar a API da Blaze. Tente novamente mais tarde.")
+    st.error("❌ Erro ao acessar a API pública de terceiros.")
     st.stop()
 
+# DataFrame para exibição e análise
 df = pd.DataFrame({
-    'Index': list(range(1, len(historico)+1)),
+    'Index': list(range(1, len(historico) + 1)),
     'Cor': historico,
     'Valor': [num_cores[c] for c in historico]
 })
