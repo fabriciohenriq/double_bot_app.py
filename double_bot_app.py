@@ -25,10 +25,6 @@ num_cores = {'preto': 0, 'vermelho': 1, 'branco': 2}
 # Obter dados reais
 historico = obter_resultados_alternativo()
 
-if "erro" in historico:
-    st.error("❌ Erro ao acessar a API pública de terceiros.")
-    st.stop()
-
 # DataFrame para exibição e análise
 df = pd.DataFrame({
     'Index': list(range(1, len(historico) + 1)),
